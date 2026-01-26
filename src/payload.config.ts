@@ -74,26 +74,8 @@ export default buildConfig({
       tenantsSlug: 'clients',
       tenantSelectorLabel: 'Brand',
       collections: {
-        pages: {
-          tenantFieldOverrides: {
-            admin: {
-              disableListColumn: false, // Enable tenant column in list view
-              components: {
-                Cell: '@/collections/Pages/components/TenantCell#TenantCell',
-              },
-            },
-          },
-        },
-        posts: {
-          tenantFieldOverrides: {
-            admin: {
-              disableListColumn: false, // Enable tenant column in list view
-              components: {
-                Cell: '@/collections/Pages/components/TenantCell#TenantCell',
-              },
-            },
-          },
-        },
+        pages: {},
+        posts: {},
         header: {
           isGlobal: true,
         },

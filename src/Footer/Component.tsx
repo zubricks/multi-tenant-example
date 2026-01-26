@@ -1,13 +1,12 @@
 import { FooterClient } from './Component.client'
 import { getCachedGlobal } from '@/utilities/getGlobals'
-import { getCurrentTenant } from '@/utilities/getTenant'
 import React from 'react'
 
 import type { Footer as FooterType } from '@/payload-types'
+import type { Tenant } from '@/providers/Tenant/types'
 
-export async function Footer() {
+export async function Footer({ tenant }: { tenant: Tenant | null }) {
   const footerData: FooterType = await getCachedGlobal('footer', 1)()
-  const tenant = await getCurrentTenant()
 
   return <FooterClient data={footerData} tenant={tenant} />
 }

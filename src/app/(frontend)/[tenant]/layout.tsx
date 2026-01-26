@@ -14,15 +14,50 @@ import { Providers } from '@/providers'
 import { TenantProvider } from '@/providers/Tenant'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { getCurrentTenant } from '@/utilities/getTenant'
 import { draftMode } from 'next/headers'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+type LayoutProps = {
+  children: React.ReactNode
+  params: Promise<{
+    tenant: string
+  }>
+}
+
+export default async function RootLayout({ children, params: paramsPromise }: LayoutProps) {
   const { isEnabled } = await draftMode()
-  const tenant = await getCurrentTenant()
+  const { tenant: tenantDomain } = await paramsPromise
+
+  // Fetch tenant data
+  const payload = await getPayload({ config: configPromise })
+  const tenantResult = await payload.find({
+    collection: 'clients',
+    where: {
+      domain: {
+        equals: tenantDomain,
+      },
+    },
+    limit: 1,
+  })
+
+  const tenant = tenantResult.docs?.[0]
+    ? {
+        id: tenantResult.docs[0].id,
+        name: tenantResult.docs[0].name,
+        slug: tenantResult.docs[0].slug,
+        domain: tenantResult.docs[0].domain,
+        logo: tenantResult.docs[0].logo,
+        tagline: tenantResult.docs[0].tagline,
+        brandColors: tenantResult.docs[0].brandColors,
+        typography: tenantResult.docs[0].typography,
+        seoMetadata: tenantResult.docs[0].seoMetadata,
+        contactInfo: tenantResult.docs[0].contactInfo,
+      }
+    : null
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -42,9 +77,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               }}
             />
 
-            <Header />
+            <Header tenant={tenant} />
             {children}
-            <Footer />
+            <Footer tenant={tenant} />
           </TenantProvider>
         </Providers>
       </body>

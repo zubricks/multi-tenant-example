@@ -41,6 +41,25 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          // Rewrite domain-based requests to path-based routes
+          // Excludes admin and api routes
+          // e.g., luxe-hotels.local/about -> /luxe-hotels.local/about
+          source: '/:path((?!admin|api|_next/static|_next/image|favicon.ico).*)*',
+          destination: '/:tenant/:path*',
+          has: [
+            {
+              type: 'host',
+              value: '(?<tenant>.*)',
+            },
+          ],
+        },
+      ],
+    }
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

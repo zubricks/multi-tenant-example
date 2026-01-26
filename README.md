@@ -124,17 +124,21 @@ multiTenantPlugin<Config>({
 
 ### Domain-Based Routing
 
-The [src/middleware.ts](src/middleware.ts) handles domain-based tenant resolution:
+This example uses Next.js rewrites to transform domain-based requests into path-based routes. The configuration in [next.config.js](next.config.js) extracts the domain from the request and rewrites it internally:
 
-1. Extracts the hostname from incoming requests
-2. Queries the `clients` collection to find a matching domain
-3. Sets the `x-tenant-slug` header for downstream processing
-4. Caches tenant lookups for 5 minutes to reduce database calls
+**How it works:**
+1. A request to `luxe-hotels.local/about` is internally rewritten to `/luxe-hotels.local/about`
+2. Next.js matches this against the `[tenant]` dynamic route in `src/app/(frontend)/[tenant]`
+3. The tenant domain is passed as a route parameter to page components
+4. Pages query Payload using `'tenant.domain': { equals: tenant }` to filter content
 
-For local development without custom domains, you can use:
+**Benefits:**
+- No middleware or custom headers required
+- Native Next.js functionality using rewrites
+- Supports static generation with `generateStaticParams`
+- Cleaner code with tenant as a standard URL parameter
 
-- Query parameter: `?tenant=your-tenant-slug`
-- Default localhost behavior (configurable)
+The rewrite excludes admin, API, and static asset routes, ensuring they function normally.
 
 ## Collections
 

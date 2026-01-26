@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
-import { draftMode, headers } from 'next/headers'
+import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
 
@@ -15,6 +15,12 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
+
+  const tenants = await payload.find({
+    collection: 'clients',
+    limit: 1000,
+  })
+
   const pages = await payload.find({
     collection: 'pages',
     draft: false,
@@ -23,35 +29,41 @@ export async function generateStaticParams() {
     pagination: false,
     select: {
       slug: true,
+      tenant: true,
     },
   })
 
-  const params = pages.docs
-    ?.filter((doc) => {
-      return doc.slug !== 'home'
-    })
-    .map(({ slug }) => {
-      return { slug }
-    })
+  const params = []
+
+  for (const page of pages.docs) {
+    if (page.slug !== 'home' && typeof page.tenant === 'object' && page.tenant?.domain) {
+      params.push({
+        tenant: page.tenant.domain,
+        slug: page.slug,
+      })
+    }
+  }
 
   return params
 }
 
 type Args = {
   params: Promise<{
+    tenant: string
     slug?: string
   }>
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = 'home' } = await paramsPromise
+  const { tenant, slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/' + decodedSlug
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
   page = await queryPageBySlug({
+    tenant,
     slug: decodedSlug,
   })
 
@@ -75,56 +87,27 @@ export default async function Page({ params: paramsPromise }: Args) {
       {draft && <LivePreviewListener />}
 
       <RenderHero {...hero} />
-      <RenderBlocks blocks={layout} />
+      <RenderBlocks blocks={layout} tenantDomain={tenant} />
     </article>
   )
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = 'home' } = await paramsPromise
+  const { tenant, slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const page = await queryPageBySlug({
+    tenant,
     slug: decodedSlug,
   })
 
   return generateMeta({ doc: page })
 }
 
-const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPageBySlug = cache(async ({ tenant, slug }: { tenant: string; slug: string }) => {
   const { isEnabled: draft } = await draftMode()
-  const headersList = await headers()
-  const tenantSlug = headersList.get('x-tenant-slug')
 
   const payload = await getPayload({ config: configPromise })
-
-  // First, get the tenant ID if we have a tenant slug
-  let tenantId: string | undefined
-  if (tenantSlug) {
-    const tenantResult = await payload.find({
-      collection: 'clients',
-      where: {
-        slug: {
-          equals: tenantSlug,
-        },
-      },
-      limit: 1,
-    })
-    tenantId = tenantResult.docs?.[0]?.id
-  }
-
-  const whereClause: any = {
-    slug: {
-      equals: slug,
-    },
-  }
-
-  // Add tenant filter if we have a tenant ID
-  if (tenantId) {
-    whereClause.tenant = {
-      equals: tenantId,
-    }
-  }
 
   const result = await payload.find({
     collection: 'pages',
@@ -132,7 +115,20 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     pagination: false,
     overrideAccess: draft,
-    where: whereClause,
+    where: {
+      and: [
+        {
+          'tenant.domain': {
+            equals: tenant,
+          },
+        },
+        {
+          slug: {
+            equals: slug,
+          },
+        },
+      ],
+    },
   })
 
   return result.docs?.[0] || null

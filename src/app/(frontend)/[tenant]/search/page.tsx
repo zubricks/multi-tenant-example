@@ -9,13 +9,23 @@ import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
 
 type Args = {
+  params: Promise<{
+    tenant: string
+  }>
   searchParams: Promise<{
     q: string
   }>
 }
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
+export default async function Page({ params: paramsPromise, searchParams: searchParamsPromise }: Args) {
+  const { tenant } = await paramsPromise
   const { q: query } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
+
+  const baseWhere = {
+    'tenant.domain': {
+      equals: tenant,
+    },
+  }
 
   const posts = await payload.find({
     collection: 'search',
@@ -32,31 +42,38 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
     ...(query
       ? {
           where: {
-            or: [
+            and: [
+              baseWhere,
               {
-                title: {
-                  like: query,
-                },
-              },
-              {
-                'meta.description': {
-                  like: query,
-                },
-              },
-              {
-                'meta.title': {
-                  like: query,
-                },
-              },
-              {
-                slug: {
-                  like: query,
-                },
+                or: [
+                  {
+                    title: {
+                      like: query,
+                    },
+                  },
+                  {
+                    'meta.description': {
+                      like: query,
+                    },
+                  },
+                  {
+                    'meta.title': {
+                      like: query,
+                    },
+                  },
+                  {
+                    slug: {
+                      like: query,
+                    },
+                  },
+                ],
               },
             ],
           },
         }
-      : {}),
+      : {
+          where: baseWhere,
+        }),
   })
 
   return (

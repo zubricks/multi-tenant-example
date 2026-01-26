@@ -6,14 +6,22 @@ import React from 'react'
 import RichText from '@/components/RichText'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
-import { getCurrentTenant } from '@/utilities/getTenant'
 
 export const ArchiveBlock: React.FC<
   ArchiveBlockProps & {
     id?: string
+    tenantDomain?: string
   }
 > = async (props) => {
-  const { id, categories, introContent, limit: limitFromProps, populateBy, selectedDocs } = props
+  const {
+    id,
+    categories,
+    introContent,
+    limit: limitFromProps,
+    populateBy,
+    selectedDocs,
+    tenantDomain,
+  } = props
 
   const limit = limitFromProps || 3
 
@@ -21,7 +29,6 @@ export const ArchiveBlock: React.FC<
 
   if (populateBy === 'collection') {
     const payload = await getPayload({ config: configPromise })
-    const tenant = await getCurrentTenant()
 
     const flattenedCategories = categories?.map((category) => {
       if (typeof category === 'object') return category.id
@@ -29,27 +36,31 @@ export const ArchiveBlock: React.FC<
     })
 
     // Build where clause with tenant filter
-    const whereClause: any = {}
+    const whereConditions: any[] = []
 
     // Add tenant filter
-    if (tenant?.id) {
-      whereClause.tenant = {
-        equals: tenant.id,
-      }
+    if (tenantDomain) {
+      whereConditions.push({
+        'tenant.domain': {
+          equals: tenantDomain,
+        },
+      })
     }
 
     // Add category filter if present
     if (flattenedCategories && flattenedCategories.length > 0) {
-      whereClause.categories = {
-        in: flattenedCategories,
-      }
+      whereConditions.push({
+        categories: {
+          in: flattenedCategories,
+        },
+      })
     }
 
     const fetchedPosts = await payload.find({
       collection: 'posts',
       depth: 1,
       limit,
-      ...(Object.keys(whereClause).length > 0 ? { where: whereClause } : {}),
+      ...(whereConditions.length > 0 ? { where: { and: whereConditions } } : {}),
     })
 
     posts = fetchedPosts.docs

@@ -8,49 +8,23 @@ import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
 
 export const dynamic = 'force-dynamic'
 
 type Args = {
   params: Promise<{
+    tenant: string
     pageNumber: string
   }>
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
-  const { pageNumber } = await paramsPromise
+  const { tenant, pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
-  const headersList = await headers()
-  const tenantSlug = headersList.get('x-tenant-slug')
 
   const sanitizedPageNumber = Number(pageNumber)
 
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
-
-  // Get tenant ID if we have a tenant slug
-  let tenantId: string | undefined
-  if (tenantSlug) {
-    const tenantResult = await payload.find({
-      collection: 'clients',
-      where: {
-        slug: {
-          equals: tenantSlug,
-        },
-      },
-      limit: 1,
-    })
-    tenantId = tenantResult.docs?.[0]?.id
-  }
-
-  const whereClause: any = {}
-
-  // Add tenant filter if we have a tenant ID
-  if (tenantId) {
-    whereClause.tenant = {
-      equals: tenantId,
-    }
-  }
 
   const posts = await payload.find({
     collection: 'posts',
@@ -58,7 +32,11 @@ export default async function Page({ params: paramsPromise }: Args) {
     limit: 12,
     page: sanitizedPageNumber,
     overrideAccess: false,
-    where: whereClause,
+    where: {
+      'tenant.domain': {
+        equals: tenant,
+      },
+    },
   })
 
   return (
@@ -99,17 +77,40 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const { totalDocs } = await payload.count({
-    collection: 'posts',
-    overrideAccess: false,
+
+  const tenants = await payload.find({
+    collection: 'clients',
+    limit: 1000,
   })
 
-  const totalPages = Math.ceil(totalDocs / 10)
+  const posts = await payload.find({
+    collection: 'posts',
+    limit: 1000,
+    overrideAccess: false,
+    pagination: false,
+    select: {
+      tenant: true,
+    },
+  })
 
-  const pages: { pageNumber: string }[] = []
+  // Group posts by tenant domain
+  const tenantPostCounts = new Map<string, number>()
 
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push({ pageNumber: String(i) })
+  for (const post of posts.docs) {
+    if (typeof post.tenant === 'object' && post.tenant?.domain) {
+      const currentCount = tenantPostCounts.get(post.tenant.domain) || 0
+      tenantPostCounts.set(post.tenant.domain, currentCount + 1)
+    }
+  }
+
+  const pages: { tenant: string; pageNumber: string }[] = []
+
+  // Generate pages for each tenant based on their post count
+  for (const [domain, count] of tenantPostCounts.entries()) {
+    const totalPages = Math.ceil(count / 12)
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push({ tenant: domain, pageNumber: String(i) })
+    }
   }
 
   return pages
