@@ -1,303 +1,387 @@
-# Payload Website Template
+# Payload Multi-Tenant Example
 
-This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/main/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
+This is a complete multi-tenant website example built with [Payload CMS](https://payloadcms.com) and the official [@payloadcms/plugin-multi-tenant](https://payloadcms.com/docs/plugins/multi-tenant) plugin. Use it to power multi-brand websites, white-label platforms, or any application that needs to serve different content and styling based on custom domains.
 
-This template is right for you if you are working on:
+This example demonstrates:
 
-- A personal or enterprise-grade website, blog, or portfolio
-- A content publishing platform with a fully featured publication workflow
-- Exploring the capabilities of Payload
+- **Domain-based tenant routing** - Serve different brands on different domains
+- **Per-tenant branding** - Custom colors, typography, logos, and styling for each brand
+- **Tenant-scoped content** - Pages, posts, and media isolated per tenant
+- **Shared amenities** - Reusable content across tenants
+- **Role-based access control** - Super admins can manage all tenants, regular users see only their assigned tenants
 
-Core features:
+## Core Features
 
-- [Pre-configured Payload Config](#how-it-works)
-- [Authentication](#users-authentication)
-- [Access Control](#access-control)
+- [Multi-Tenant Plugin](#multi-tenant-architecture)
+- [Domain-Based Routing](#domain-based-routing)
+- [Custom Branding Per Tenant](#tenant-branding)
+- [Tenant-Scoped Collections](#collections)
+- [Role-Based Access Control](#access-control)
 - [Layout Builder](#layout-builder)
-- [Draft Preview](#draft-preview)
-- [Live Preview](#live-preview)
-- [On-demand Revalidation](#on-demand-revalidation)
-- [SEO](#seo)
-- [Search](#search)
-- [Redirects](#redirects)
-- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
-- [Website](#website)
+- [Draft Preview & Live Preview](#draft-preview)
+- [SEO & Search](#seo-and-search)
 
 ## Quick Start
 
 To spin up this example locally, follow these steps:
 
-### Clone
+### Prerequisites
 
-If you have not done so already, you need to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+- Node.js ^18.20.2 || >=20.9.0
+- pnpm ^9 || ^10
+- MongoDB (local or remote instance)
 
-Use the `create-payload-app` CLI to clone this template directly to your machine:
+### Installation
 
-```bash
-pnpx create-payload-app my-project -t website
+1. Clone this repository:
+
+   ```bash
+   git clone <repository-url>
+   cd multi-tenant-example
+   ```
+
+2. Copy the environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Update your `.env` file with your MongoDB connection string:
+
+   ```
+   DATABASE_URI=mongodb://localhost:27017/multi-tenant-example
+   PAYLOAD_SECRET=your-secret-here
+   ```
+
+4. Install dependencies:
+
+   ```bash
+   pnpm install
+   ```
+
+5. Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+6. Open `http://localhost:3000` in your browser
+
+7. Create your first admin user through the on-screen instructions
+
+### Setting Up Tenants
+
+After logging in, you'll need to create at least one tenant (brand):
+
+1. Navigate to the **Clients** collection in the admin panel
+2. Create a new client with:
+
+   - **Name**: Your brand name (e.g., "Luxe Hotels")
+   - **Slug**: URL-friendly identifier (e.g., "luxe-hotels")
+   - **Domain**: The domain for this brand (e.g., "luxe-hotels.local" for local development)
+   - **Brand Colors**: Customize primary, secondary, accent colors
+   - **Typography**: Choose heading and body fonts
+   - **Logo**: Upload a brand logo
+   - **SEO Metadata**: Set site title, description, and default OG image
+
+3. For local development, add the domain to your `/etc/hosts` file:
+
+   ```bash
+   sudo echo "127.0.0.1 luxe-hotels.local" >> /etc/hosts
+   ```
+
+4. Access your tenant at `http://luxe-hotels.local:3000`
+
+Alternatively, for quick testing, use the tenant query parameter: `http://localhost:3000?tenant=luxe-hotels`
+
+## Multi-Tenant Architecture
+
+This example is built on Payload's official multi-tenant plugin, which provides:
+
+### Tenant Configuration
+
+The multi-tenant plugin is configured in [src/payload.config.ts](src/payload.config.ts):
+
+```typescript
+multiTenantPlugin<Config>({
+  tenantsSlug: 'clients',
+  tenantSelectorLabel: 'Brand',
+  collections: {
+    pages: {
+      /* tenant-scoped */
+    },
+    posts: {
+      /* tenant-scoped */
+    },
+    header: { isGlobal: true },
+    footer: { isGlobal: true },
+  },
+  userHasAccessToAllTenants: (user) => {
+    return user?.roles?.includes('super-admin') || false
+  },
+})
 ```
 
-### Development
+### Domain-Based Routing
 
-1. First [clone the repo](#clone) if you have not done so already
-1. `cd my-project && cp .env.example .env` to copy the example environment variables
-1. `pnpm install && pnpm dev` to install dependencies and start the dev server
-1. open `http://localhost:3000` to open the app in your browser
+The [src/middleware.ts](src/middleware.ts) handles domain-based tenant resolution:
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+1. Extracts the hostname from incoming requests
+2. Queries the `clients` collection to find a matching domain
+3. Sets the `x-tenant-slug` header for downstream processing
+4. Caches tenant lookups for 5 minutes to reduce database calls
 
-## How it works
+For local development without custom domains, you can use:
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+- Query parameter: `?tenant=your-tenant-slug`
+- Default localhost behavior (configurable)
 
-### Collections
+## Collections
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+### Clients (Tenants)
 
-- #### Users (Authentication)
+The `clients` collection ([src/collections/Clients/index.ts](src/collections/Clients/index.ts)) stores tenant configuration:
 
-  Users are auth-enabled collections that have access to the admin panel and unpublished content. See [Access Control](#access-control) for more details.
+**General Settings:**
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+- Name, slug, and domain
+- Logo and tagline
 
-- #### Posts
+**Brand Colors:**
 
-  Posts are used to generate blog posts, news articles, or any other type of content that is published over time. All posts are layout builder enabled so you can generate unique layouts for each post using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Posts are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
+- Primary, secondary, and accent colors
+- Background, foreground, and border colors
 
-- #### Pages
+**Typography:**
 
-  All pages are layout builder enabled so you can generate unique layouts for each page using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Pages are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
+- Heading font (Inter, Playfair Display, Montserrat, Raleway, Poppins)
+- Body font (Inter, Open Sans, Lato, Roboto, Source Sans 3)
 
-- #### Media
+**SEO & Metadata:**
 
-  This is the uploads enabled collection used by pages, posts, and projects to contain media like images, videos, downloads, and other assets. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+- Site title and description
+- Open Graph image
+- Custom favicon
 
-- #### Categories
+**Contact Information:**
 
-  A taxonomy used to group posts together. Categories can be nested inside of one another, for example "News > Technology". See the official [Payload Nested Docs Plugin](https://payloadcms.com/docs/plugins/nested-docs) for more details.
+- Email and phone
 
-### Globals
+### Pages
 
-See the [Globals](https://payloadcms.com/docs/configuration/globals) docs for details on how to extend this functionality.
+Tenant-scoped pages with layout builder blocks. Each tenant can have their own unique pages with custom layouts.
 
-- `Header`
+### Posts
 
-  The data required by the header on your front-end like nav links.
+Tenant-scoped blog posts and articles. Content is isolated per tenant.
 
-- `Footer`
+### Media
 
-  Same as above but for the footer of your site.
+Upload collection for images, videos, and other assets. Supports:
 
-## Access control
+- Multiple image sizes
+- Focal point selection
+- Manual resizing
 
-Basic access control is setup to limit access to various content based based on publishing status.
+### Amenities
 
-- `users`: Users can access the admin panel and create or edit content.
-- `posts`: Everyone can access published posts, but only users can create, update, or delete them.
-- `pages`: Everyone can access published pages, but only users can create, update, or delete them.
+A shared collection for reusable amenities (e.g., "Free WiFi", "Swimming Pool") that can be referenced across tenants. This demonstrates how to have both tenant-scoped and shared content in the same application.
 
-For more details on how to extend this functionality, see the [Payload Access Control](https://payloadcms.com/docs/access-control/overview#access-control) docs.
+Icons available: WiFi, Parking, Pool, Gym, Restaurant, Room Service, Spa, Pet Friendly, Air Conditioning, Conference Room, Bar, Laundry, Airport Shuttle, Concierge, Safe.
+
+### Categories
+
+Taxonomy for grouping posts. Supports nested categories using the [Nested Docs Plugin](https://payloadcms.com/docs/plugins/nested-docs).
+
+### Users
+
+Auth-enabled collection with role support:
+
+- **Regular users**: Access only their assigned tenant(s)
+- **Super admins**: Access all tenants
+
+## Globals
+
+### Header
+
+Tenant-scoped global for navigation and header content. Each tenant can customize their navigation menu.
+
+### Footer
+
+Tenant-scoped global for footer content. Each tenant can customize their footer links and information.
+
+## Tenant Branding
+
+Each tenant can customize their brand appearance:
+
+- **Colors**: 6 customizable color values (primary, secondary, accent, background, foreground, border)
+- **Typography**: Separate font choices for headings and body text
+- **Logo**: Custom logo per tenant
+- **Favicon**: Custom favicon per tenant
+- **SEO**: Default meta information per tenant
+
+The frontend can access this branding information and apply it dynamically using CSS custom properties or Tailwind configuration.
+
+## Access Control
+
+The example implements role-based access control:
+
+### Super Admin Role
+
+Users with the `super-admin` role can:
+
+- Access all tenants
+- Create and manage tenants
+- View and edit content across all brands
+
+### Regular Users
+
+Regular users can only:
+
+- Access tenants they're assigned to
+- Create and manage content within their tenant(s)
+- Cannot see other tenants' content
+
+### Public Access
+
+- Published pages and posts are publicly accessible
+- Media files are publicly accessible
+- Tenant (client) configuration is readable (for domain lookup)
+- Amenities are publicly readable
 
 ## Layout Builder
 
-Create unique page layouts for any type of content using a powerful layout builder. This template comes pre-configured with the following layout building blocks:
+Pages and posts use Payload's layout builder with pre-configured blocks:
 
-- Hero
-- Content
-- Media
-- Call To Action
-- Archive
+- **Hero** - Eye-catching header sections
+- **Content** - Rich text content with Lexical editor
+- **Media** - Image and video blocks
+- **Call To Action** - Conversion-focused sections
+- **Archive** - Dynamic content listings
 
-Each block is fully designed and built into the front-end website that comes with this template. See [Website](#website) for more details.
-
-## Lexical editor
-
-A deep editorial experience that allows complete freedom to focus just on writing content without breaking out of the flow with support for Payload blocks, media, links and other features provided out of the box. See [Lexical](https://payloadcms.com/docs/rich-text/overview) docs.
+Each block is designed to work with tenant branding.
 
 ## Draft Preview
 
-All posts and pages are draft-enabled so you can preview them before publishing them to your website. To do this, these collections use [Versions](https://payloadcms.com/docs/configuration/collections#versions) with `drafts` set to `true`. This means that when you create a new post, project, or page, it will be saved as a draft and will not be visible on your website until you publish it. This also means that you can preview your draft before publishing it to your website. To do this, we automatically format a custom URL which redirects to your front-end to securely fetch the draft version of your content.
+All pages and posts support draft previews with [Versions](https://payloadcms.com/docs/configuration/collections#versions):
 
-Since the front-end of this template is statically generated, this also means that pages, posts, and projects will need to be regenerated as changes are made to published documents. To do this, we use an `afterChange` hook to regenerate the front-end when a document has changed and its `_status` is `published`.
+- Create drafts without publishing
+- Preview unpublished changes
+- Scheduled publishing via jobs queue
+- Automatic revalidation on publish
 
-For more details on how to extend this functionality, see the official [Draft Preview Example](https://github.com/payloadcms/payload/tree/examples/draft-preview).
+## SEO and Search
 
-## Live preview
+### SEO Plugin
 
-In addition to draft previews you can also enable live preview to view your end resulting page as you're editing content with full support for SSR rendering. See [Live preview docs](https://payloadcms.com/docs/live-preview/overview) for more details.
+Uses the [Payload SEO Plugin](https://payloadcms.com/docs/plugins/seo) for complete SEO control:
 
-## On-demand Revalidation
+- Meta titles and descriptions
+- Open Graph tags
+- Twitter Card support
+- Automatic sitemap generation
 
-We've added hooks to collections and globals so that all of your pages, posts, footer, or header changes will automatically be updated in the frontend via on-demand revalidation supported by Nextjs.
+### Search Plugin
 
-> Note: if an image has been changed, for example it's been cropped, you will need to republish the page it's used on in order to be able to revalidate the Nextjs image cache.
+Implements the [Payload Search Plugin](https://payloadcms.com/docs/plugins/search) for full-text search:
 
-## SEO
+- Search across pages and posts
+- Tenant-scoped search results
+- SSR search functionality
 
-This template comes pre-configured with the official [Payload SEO Plugin](https://payloadcms.com/docs/plugins/seo) for complete SEO control from the admin panel. All SEO data is fully integrated into the front-end website that comes with this template. See [Website](#website) for more details.
+## Jobs and Scheduled Publishing
 
-## Search
+Configured with Payload's [Jobs Queue](https://payloadcms.com/docs/jobs-queue/jobs) for:
 
-This template also pre-configured with the official [Payload Search Plugin](https://payloadcms.com/docs/plugins/search) to showcase how SSR search features can easily be implemented into Next.js with Payload. See [Website](#website) for more details.
+- Scheduled publishing of content
+- Scheduled unpublishing
+- Background task processing
 
-## Redirects
-
-If you are migrating an existing site or moving content to a new URL, you can use the `redirects` collection to create a proper redirect from old URLs to new ones. This will ensure that proper request status codes are returned to search engines and that your users are not left with a broken link. This template comes pre-configured with the official [Payload Redirects Plugin](https://payloadcms.com/docs/plugins/redirects) for complete redirect control from the admin panel. All redirects are fully integrated into the front-end website that comes with this template. See [Website](#website) for more details.
-
-## Jobs and Scheduled Publish
-
-We have configured [Scheduled Publish](https://payloadcms.com/docs/versions/drafts#scheduled-publish) which uses the [jobs queue](https://payloadcms.com/docs/jobs-queue/jobs) in order to publish or unpublish your content on a scheduled time. The tasks are run on a cron schedule and can also be run as a separate instance if needed.
-
-> Note: When deployed on Vercel, depending on the plan tier, you may be limited to daily cron only.
-
-## Website
-
-This template includes a beautifully designed, production-ready front-end built with the [Next.js App Router](https://nextjs.org), served right alongside your Payload app in a instance. This makes it so that you can deploy both your backend and website where you need it.
-
-Core features:
-
-- [Next.js App Router](https://nextjs.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [React Hook Form](https://react-hook-form.com)
-- [Payload Admin Bar](https://github.com/payloadcms/payload/tree/main/packages/admin-bar)
-- [TailwindCSS styling](https://tailwindcss.com/)
-- [shadcn/ui components](https://ui.shadcn.com/)
-- User Accounts and Authentication
-- Fully featured blog
-- Publication workflow
-- Dark mode
-- Pre-made layout building blocks
-- SEO
-- Search
-- Redirects
-- Live preview
-
-### Cache
-
-Although Next.js includes a robust set of caching strategies out of the box, Payload Cloud proxies and caches all files through Cloudflare using the [Official Cloud Plugin](https://www.npmjs.com/package/@payloadcms/payload-cloud). This means that Next.js caching is not needed and is disabled by default. If you are hosting your app outside of Payload Cloud, you can easily reenable the Next.js caching mechanisms by removing the `no-store` directive from all fetch requests in `./src/app/_api` and then removing all instances of `export const dynamic = 'force-dynamic'` from pages files, such as `./src/app/(pages)/[slug]/page.tsx`. For more details, see the official [Next.js Caching Docs](https://nextjs.org/docs/app/building-your-application/caching).
+> **Note**: When deployed on Vercel, depending on your plan tier, you may be limited to daily cron only.
 
 ## Development
 
-To spin up this example locally, follow the [Quick Start](#quick-start). Then [Seed](#seed) the database with a few pages, posts, and projects.
+### Working with MongoDB
+
+This example uses MongoDB with the Mongoose adapter. The database connection is configured in `.env`:
+
+```
+DATABASE_URI=mongodb://localhost:27017/multi-tenant-example
+```
+
+For production deployments, use a hosted MongoDB service like MongoDB Atlas.
 
 ### Working with Postgres
 
-Postgres and other SQL-based databases follow a strict schema for managing your data. In comparison to our MongoDB adapter, this means that there's a few extra steps to working with Postgres.
+To switch to Postgres:
 
-Note that often times when making big schema changes you can run the risk of losing data if you're not manually migrating it.
+1. Install the Postgres adapter:
 
-#### Local development
+   ```bash
+   pnpm add @payloadcms/db-postgres
+   ```
 
-Ideally we recommend running a local copy of your database so that schema updates are as fast as possible. By default the Postgres adapter has `push: true` for development environments. This will let you add, modify and remove fields and collections without needing to run any data migrations.
+2. Update [src/payload.config.ts](src/payload.config.ts):
 
-If your database is pointed to production you will want to set `push: false` otherwise you will risk losing data or having your migrations out of sync.
+   ```typescript
+   import { postgresAdapter } from '@payloadcms/db-postgres'
 
-#### Migrations
+   export default buildConfig({
+     db: postgresAdapter({
+       pool: {
+         connectionString: process.env.DATABASE_URI || '',
+       },
+     }),
+     // ...
+   })
+   ```
 
-[Migrations](https://payloadcms.com/docs/database/migrations) are essentially SQL code versions that keeps track of your schema. When deploy with Postgres you will need to make sure you create and then run your migrations.
+3. Update your `.env`:
 
-Locally create a migration
+   ```
+   DATABASE_URI=postgres://user:password@localhost:5432/multi-tenant-example
+   ```
 
-```bash
-pnpm payload migrate:create
-```
+4. Generate and run migrations:
+   ```bash
+   pnpm payload migrate:create
+   pnpm payload migrate
+   ```
 
-This creates the migration files you will need to push alongside with your new configuration.
+### Seeding Data
 
-On the server after building and before running `pnpm start` you will want to run your migrations
+You can seed the database with demo data:
 
-```bash
-pnpm payload migrate
-```
+1. Click the "Seed Database" button in the admin panel, or
+2. Run the seed script programmatically
 
-This command will check for any migrations that have not yet been run and try to run them and it will keep a record of migrations that have been run in the database.
+This will create:
 
-### Docker
+- Demo clients/tenants
+- Sample pages and posts
+- Demo user accounts
+- Example amenities
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+> **NOTICE**: Seeding is destructive and will drop your current database. Only run this on a fresh project.
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+## Use Cases
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+This example is ideal for:
 
-### Seed
-
-To seed the database with a few pages, posts, and projects you can click the 'seed database' link from the admin panel.
-
-The seed script will also create a demo user for demonstration purposes only:
-
-- Demo Author
-  - Email: `demo-author@payloadcms.com`
-  - Password: `password`
-
-> NOTICE: seeding the database is destructive because it drops your current database to populate a fresh one from the seed template. Only run this command if you are starting a new project or can afford to lose your current data.
-
-## Production
-
-To run Payload in production, you need to build and start the Admin panel. To do so, follow these steps:
-
-1. Invoke the `next build` script by running `pnpm build` or `npm run build` in your project root. This creates a `.next` directory with a production-ready admin bundle.
-1. Finally run `pnpm start` or `npm run start` to run Node in production and serve Payload from the `.build` directory.
-1. When you're ready to go live, see Deployment below for more details.
-
-### Deploying to Vercel
-
-This template can also be deployed to Vercel for free. You can get started by choosing the Vercel DB adapter during the setup of the template or by manually installing and configuring it:
-
-```bash
-pnpm add @payloadcms/db-vercel-postgres
-```
-
-```ts
-// payload.config.ts
-import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
-
-export default buildConfig({
-  // ...
-  db: vercelPostgresAdapter({
-    pool: {
-      connectionString: process.env.POSTGRES_URL || '',
-    },
-  }),
-  // ...
-```
-
-We also support Vercel's blob storage:
-
-```bash
-pnpm add @payloadcms/storage-vercel-blob
-```
-
-```ts
-// payload.config.ts
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
-
-export default buildConfig({
-  // ...
-  plugins: [
-    vercelBlobStorage({
-      collections: {
-        [Media.slug]: true,
-      },
-      token: process.env.BLOB_READ_WRITE_TOKEN || '',
-    }),
-  ],
-  // ...
-```
-
-There is also a simplified [one click deploy](https://github.com/payloadcms/payload/tree/templates/with-vercel-postgres) to Vercel should you need it.
-
-### Self-hosting
-
-Before deploying your app, you need to:
-
-1. Ensure your app builds and serves in production. See [Production](#production) for more details.
-2. You can then deploy Payload as you would any other Node.js or Next.js application either directly on a VPS, DigitalOcean's Apps Platform, via Coolify or more. More guides coming soon.
-
-You can also deploy your app manually, check out the [deployment documentation](https://payloadcms.com/docs/production/deployment) for full details.
+- **Multi-brand websites** - Manage multiple brands from a single CMS
+- **White-label platforms** - Offer customized sites to different clients
+- **Agency portfolios** - Manage multiple client sites
+- **Franchise systems** - Individual sites for each franchise location
+- **Multi-region sites** - Different content/branding per region
+- **SaaS platforms** - Provide branded customer portals
 
 ## Questions
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+If you have any issues or questions, reach out to us on:
+
+- [Discord](https://discord.com/invite/payload)
+- [GitHub Discussions](https://github.com/payloadcms/payload/discussions)
+
+## License
+
+MIT
