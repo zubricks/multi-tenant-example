@@ -8,8 +8,9 @@ import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 type Args = {
   params: Promise<{
@@ -20,10 +21,36 @@ type Args = {
 export default async function Page({ params: paramsPromise }: Args) {
   const { pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
+  const headersList = await headers()
+  const tenantSlug = headersList.get('x-tenant-slug')
 
   const sanitizedPageNumber = Number(pageNumber)
 
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
+
+  // Get tenant ID if we have a tenant slug
+  let tenantId: string | undefined
+  if (tenantSlug) {
+    const tenantResult = await payload.find({
+      collection: 'clients',
+      where: {
+        slug: {
+          equals: tenantSlug,
+        },
+      },
+      limit: 1,
+    })
+    tenantId = tenantResult.docs?.[0]?.id
+  }
+
+  const whereClause: any = {}
+
+  // Add tenant filter if we have a tenant ID
+  if (tenantId) {
+    whereClause.tenant = {
+      equals: tenantId,
+    }
+  }
 
   const posts = await payload.find({
     collection: 'posts',
@@ -31,6 +58,7 @@ export default async function Page({ params: paramsPromise }: Args) {
     limit: 12,
     page: sanitizedPageNumber,
     overrideAccess: false,
+    where: whereClause,
   })
 
   return (

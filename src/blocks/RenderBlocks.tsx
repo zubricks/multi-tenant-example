@@ -2,18 +2,24 @@ import React, { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
 
+import { AmenitiesBlock } from '@/blocks/Amenities/Component'
 import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
+import { BrandGridBlock } from '@/blocks/BrandGrid/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { MediaContentBlock } from '@/blocks/MediaContent/Component'
 
 const blockComponents = {
+  amenities: AmenitiesBlock,
   archive: ArchiveBlock,
+  brandGrid: BrandGridBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  mediaContent: MediaContentBlock,
 }
 
 export const RenderBlocks: React.FC<{

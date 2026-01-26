@@ -5,7 +5,10 @@ import sharp from 'sharp' // sharp-import
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
+import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
+import type { Config } from './payload-types'
 
+import { Amenities } from './collections/Amenities'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
@@ -16,6 +19,7 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { Clients } from './collections/Clients'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,7 +32,7 @@ export default buildConfig({
       beforeLogin: ['@/components/BeforeLogin'],
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      beforeDashboard: ['@/components/BeforeDashboard', '@/components/SeedButton'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -62,11 +66,46 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Media, Categories, Users, Clients, Amenities, Header, Footer],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
   plugins: [
     ...plugins,
+    multiTenantPlugin<Config>({
+      tenantsSlug: 'clients',
+      tenantSelectorLabel: 'Brand',
+      collections: {
+        pages: {
+          tenantFieldOverrides: {
+            admin: {
+              disableListColumn: false, // Enable tenant column in list view
+              components: {
+                Cell: '@/collections/Pages/components/TenantCell#TenantCell',
+              },
+            },
+          },
+        },
+        posts: {
+          tenantFieldOverrides: {
+            admin: {
+              disableListColumn: false, // Enable tenant column in list view
+              components: {
+                Cell: '@/collections/Pages/components/TenantCell#TenantCell',
+              },
+            },
+          },
+        },
+        header: {
+          isGlobal: true,
+        },
+        footer: {
+          isGlobal: true,
+        },
+      },
+      userHasAccessToAllTenants: (user) => {
+        // Check if user has a 'super-admin' role or is an admin
+        return user?.roles?.includes('super-admin') || false
+      },
+    }),
     // storage-adapter-placeholder
   ],
   secret: process.env.PAYLOAD_SECRET,

@@ -6,6 +6,7 @@ import React from 'react'
 import RichText from '@/components/RichText'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
+import { getCurrentTenant } from '@/utilities/getTenant'
 
 export const ArchiveBlock: React.FC<
   ArchiveBlockProps & {
@@ -20,25 +21,35 @@ export const ArchiveBlock: React.FC<
 
   if (populateBy === 'collection') {
     const payload = await getPayload({ config: configPromise })
+    const tenant = await getCurrentTenant()
 
     const flattenedCategories = categories?.map((category) => {
       if (typeof category === 'object') return category.id
       else return category
     })
 
+    // Build where clause with tenant filter
+    const whereClause: any = {}
+
+    // Add tenant filter
+    if (tenant?.id) {
+      whereClause.tenant = {
+        equals: tenant.id,
+      }
+    }
+
+    // Add category filter if present
+    if (flattenedCategories && flattenedCategories.length > 0) {
+      whereClause.categories = {
+        in: flattenedCategories,
+      }
+    }
+
     const fetchedPosts = await payload.find({
       collection: 'posts',
       depth: 1,
       limit,
-      ...(flattenedCategories && flattenedCategories.length > 0
-        ? {
-            where: {
-              categories: {
-                in: flattenedCategories,
-              },
-            },
-          }
-        : {}),
+      ...(Object.keys(whereClause).length > 0 ? { where: whereClause } : {}),
     })
 
     posts = fetchedPosts.docs

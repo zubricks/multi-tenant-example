@@ -26,6 +26,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from 'payload'
+import type { TextField } from 'payload'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -214,7 +215,14 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
-    slugField(),
+    slugField({
+      overrides: (field) => {
+        // Remove global unique constraint - multi-tenant plugin handles per-tenant uniqueness
+        const slugTextField = field.fields[1] as TextField
+        slugTextField.unique = false
+        return field
+      },
+    }),
   ],
   hooks: {
     afterChange: [revalidatePost],

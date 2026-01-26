@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+  /* Apply tenant-specific fonts */
   h1,
   h2,
   h3,
@@ -11,6 +12,11 @@
   h6 {
     font-size: unset;
     font-weight: unset;
+    font-family: var(--font-heading, inherit);
+  }
+
+  body {
+    font-family: var(--font-body, inherit);
   }
 
   :root {

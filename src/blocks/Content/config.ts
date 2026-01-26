@@ -34,6 +34,28 @@ const columnFields: Field[] = [
     ],
   },
   {
+    name: 'textAlign',
+    type: 'select',
+    defaultValue: 'left',
+    options: [
+      {
+        label: 'Left',
+        value: 'left',
+      },
+      {
+        label: 'Center',
+        value: 'center',
+      },
+      {
+        label: 'Right',
+        value: 'right',
+      },
+    ],
+    admin: {
+      description: 'Choose how to align the text in this column.',
+    },
+  },
+  {
     name: 'richText',
     type: 'richText',
     editor: lexicalEditor({

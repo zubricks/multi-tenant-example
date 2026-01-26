@@ -4,23 +4,26 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { unstable_cache } from 'next/cache'
 
-type Global = keyof Config['globals']
+type TenantGlobal = 'header' | 'footer'
 
-async function getGlobal(slug: Global, depth = 0) {
+async function getTenantGlobal(slug: TenantGlobal, depth = 0) {
   const payload = await getPayload({ config: configPromise })
 
-  const global = await payload.findGlobal({
-    slug,
+  // For tenant-specific globals (which are actually collections with isGlobal: true),
+  // we query the collection and get the first document for the current tenant
+  const result = await payload.find({
+    collection: slug,
     depth,
+    limit: 1,
   })
 
-  return global
+  return result.docs[0] || null
 }
 
 /**
  * Returns a unstable_cache function mapped with the cache tag for the slug
  */
-export const getCachedGlobal = (slug: Global, depth = 0) =>
-  unstable_cache(async () => getGlobal(slug, depth), [slug], {
+export const getCachedGlobal = (slug: TenantGlobal, depth = 0) =>
+  unstable_cache(async () => getTenantGlobal(slug, depth), [slug], {
     tags: [`global_${slug}`],
   })

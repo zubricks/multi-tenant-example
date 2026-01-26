@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
-import { draftMode } from 'next/headers'
+import { draftMode, headers } from 'next/headers'
 import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
 
@@ -93,8 +93,38 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
 const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
+  const headersList = await headers()
+  const tenantSlug = headersList.get('x-tenant-slug')
 
   const payload = await getPayload({ config: configPromise })
+
+  // First, get the tenant ID if we have a tenant slug
+  let tenantId: string | undefined
+  if (tenantSlug) {
+    const tenantResult = await payload.find({
+      collection: 'clients',
+      where: {
+        slug: {
+          equals: tenantSlug,
+        },
+      },
+      limit: 1,
+    })
+    tenantId = tenantResult.docs?.[0]?.id
+  }
+
+  const whereClause: any = {
+    slug: {
+      equals: slug,
+    },
+  }
+
+  // Add tenant filter if we have a tenant ID
+  if (tenantId) {
+    whereClause.tenant = {
+      equals: tenantId,
+    }
+  }
 
   const result = await payload.find({
     collection: 'pages',
@@ -102,11 +132,7 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     pagination: false,
     overrideAccess: draft,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
+    where: whereClause,
   })
 
   return result.docs?.[0] || null

@@ -18,6 +18,16 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
+      // Allow all .local domains for multi-tenant development
+      {
+        protocol: 'http',
+        hostname: '*.local',
+      },
+      // Allow localhost for development
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
     ],
   },
   webpack: (webpackConfig) => {

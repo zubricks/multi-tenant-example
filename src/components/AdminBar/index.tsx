@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation'
 import './index.scss'
 
 import { getClientSideURL } from '@/utilities/getURL'
+import { useTenant } from '@/providers/Tenant'
+import { hexToHsl } from '@/utilities/hexToHsl'
 
 const baseClass = 'admin-bar'
 
@@ -41,17 +43,24 @@ export const AdminBar: React.FC<{
     collectionLabels[segments?.[1] as keyof typeof collectionLabels] ? segments[1] : 'pages'
   ) as keyof typeof collectionLabels
   const router = useRouter()
+  const tenant = useTenant()
 
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
     setShow(Boolean(user?.id))
   }, [])
 
+  // Get tenant primary color in HSL format
+  const primaryColorHex = tenant?.brandColors?.primaryColor
+  const primaryColorHsl = primaryColorHex ? hexToHsl(primaryColorHex) : null
+  const backgroundColor = primaryColorHsl ? `hsl(${primaryColorHsl})` : '#000000'
+
   return (
     <div
-      className={cn(baseClass, 'py-2 bg-black text-white', {
+      className={cn(baseClass, 'py-2 text-white', {
         block: show,
         hidden: !show,
       })}
+      style={{ backgroundColor }}
     >
       <div className="container">
         <PayloadAdminBar

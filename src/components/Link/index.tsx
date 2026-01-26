@@ -45,13 +45,36 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
   const size = appearance === 'link' ? 'clear' : sizeFromProps
   const newTabProps = newTab ? { rel: 'noopener noreferrer', target: '_blank' } : {}
 
+  // Check if this is a tenant-switching link (has ?tenant= query param)
+  // If so, use native <a> tag to force full page reload and re-render layout with new tenant
+  const isTenantSwitch = href?.includes('?tenant=') || href?.includes('&tenant=')
+
   /* Ensure we don't break any styles set by richText */
   if (appearance === 'inline') {
+    if (isTenantSwitch) {
+      return (
+        <a className={cn(className)} href={href || url || ''} {...newTabProps}>
+          {label && label}
+          {children && children}
+        </a>
+      )
+    }
     return (
       <Link className={cn(className)} href={href || url || ''} {...newTabProps}>
         {label && label}
         {children && children}
       </Link>
+    )
+  }
+
+  if (isTenantSwitch) {
+    return (
+      <Button asChild className={className} size={size} variant={appearance}>
+        <a className={cn(className)} href={href || url || ''} {...newTabProps}>
+          {label && label}
+          {children && children}
+        </a>
+      </Button>
     )
   }
 

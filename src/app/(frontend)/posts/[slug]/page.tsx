@@ -4,7 +4,7 @@ import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { draftMode } from 'next/headers'
+import { draftMode, headers } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 
@@ -14,6 +14,8 @@ import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+
+export const dynamic = 'force-dynamic'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -88,8 +90,38 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
+  const headersList = await headers()
+  const tenantSlug = headersList.get('x-tenant-slug')
 
   const payload = await getPayload({ config: configPromise })
+
+  // Get tenant ID if we have a tenant slug
+  let tenantId: string | undefined
+  if (tenantSlug) {
+    const tenantResult = await payload.find({
+      collection: 'clients',
+      where: {
+        slug: {
+          equals: tenantSlug,
+        },
+      },
+      limit: 1,
+    })
+    tenantId = tenantResult.docs?.[0]?.id
+  }
+
+  const whereClause: any = {
+    slug: {
+      equals: slug,
+    },
+  }
+
+  // Add tenant filter if we have a tenant ID
+  if (tenantId) {
+    whereClause.tenant = {
+      equals: tenantId,
+    }
+  }
 
   const result = await payload.find({
     collection: 'posts',
@@ -97,11 +129,7 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     overrideAccess: draft,
     pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
+    where: whereClause,
   })
 
   return result.docs?.[0] || null
