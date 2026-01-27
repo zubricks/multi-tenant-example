@@ -36,12 +36,14 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, tenant }) => {
   }, [headerTheme])
 
   // Get tenant logo URL if available
-  const logoUrl = tenant?.logo && typeof tenant.logo !== 'string'
-    ? (tenant.logo as Media).url
-    : null
+  const logoUrl =
+    tenant?.logo && typeof tenant.logo !== 'string' ? (tenant.logo as Media).url : null
 
   return (
-    <header className="relative z-20 bg-primary border-b border-primary" {...(mounted && theme ? { 'data-theme': theme } : {})}>
+    <header
+      className="relative z-20 bg-primary border-b border-primary"
+      {...(mounted && theme ? { 'data-theme': theme } : {})}
+    >
       <div className="container py-4 flex justify-between items-center">
         <Link href="/">
           {logoUrl ? (
@@ -55,7 +57,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, tenant }) => {
             />
           ) : (
             <img
-              src="/SVG/apex-logo.svg"
+              src="/svg/apex-logo.svg"
               alt="Apex Logo"
               className="max-w-[9.375rem] w-full h-[34px] object-contain"
               loading="eager"

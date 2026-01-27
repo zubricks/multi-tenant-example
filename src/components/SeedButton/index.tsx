@@ -11,7 +11,7 @@ const SeedButton: React.FC = () => {
   const handleSeed = async () => {
     if (
       !confirm(
-        'This will delete all existing data and create 10 new tenants with demo content. Are you sure?',
+        'This will delete all existing data and create 3 new tenants with demo content. Are you sure?',
       )
     ) {
       return
@@ -43,7 +43,7 @@ const SeedButton: React.FC = () => {
       }
 
       const result = await response.json()
-      setMessage('Database seeded successfully! ✅ Created 10 tenants with pages and posts.')
+      setMessage('Database seeded successfully! ✅ Created 3 hotel brands with pages and posts.')
       console.log('Seed result:', result)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
@@ -57,7 +57,7 @@ const SeedButton: React.FC = () => {
   return (
     <div style={{ marginBottom: '20px' }}>
       <Button onClick={handleSeed} disabled={isSeeding}>
-        {isSeeding ? 'Seeding Database... (may take 2-3 minutes)' : '🌱 Seed Database'}
+        {isSeeding ? 'Seeding Database... (may take 1-2 minutes)' : '🌱 Seed Database'}
       </Button>
 
       {message && (
@@ -93,11 +93,11 @@ const SeedButton: React.FC = () => {
           <p>Please wait... This will:</p>
           <ul style={{ paddingLeft: '20px', marginTop: '5px' }}>
             <li>Clear existing data</li>
-            <li>Create 10 hotel brands (tenants)</li>
-            <li>Fetch 40 unique images from Unsplash</li>
+            <li>Create 3 hotel brands (Luxe Hotels, Budget Inn, Comfort Stays)</li>
+            <li>Load SVG logos and fetch unique images</li>
             <li>Create pages and posts for each brand</li>
           </ul>
-          <p style={{ marginTop: '10px', fontWeight: 'bold' }}>Expected time: 2-3 minutes</p>
+          <p style={{ marginTop: '10px', fontWeight: 'bold' }}>Expected time: 1-2 minutes</p>
         </div>
       )}
     </div>

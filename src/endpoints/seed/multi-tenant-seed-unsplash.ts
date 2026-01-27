@@ -10,7 +10,7 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
-  'clients',
+  'brands',
 ]
 
 const tenantGlobalCollections: CollectionSlug[] = ['header', 'footer']

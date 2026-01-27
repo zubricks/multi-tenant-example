@@ -19,7 +19,7 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
-import { Clients } from './collections/Clients'
+import { Brands } from './collections/Brands'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -66,12 +66,12 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Clients, Amenities, Header, Footer],
+  collections: [Pages, Posts, Media, Categories, Users, Brands, Amenities, Header, Footer],
   cors: [getServerSideURL()].filter(Boolean),
   plugins: [
     ...plugins,
     multiTenantPlugin<Config>({
-      tenantsSlug: 'clients',
+      tenantsSlug: 'brands',
       tenantSelectorLabel: 'Brand',
       collections: {
         pages: {},

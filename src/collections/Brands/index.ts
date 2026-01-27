@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
-export const Clients: CollectionConfig = {
-  slug: 'clients',
+export const Brands: CollectionConfig = {
+  slug: 'brands',
   access: {
     // Allow public read access so middleware can look up tenants by domain
     // This is safe because we're only exposing basic branding info, not sensitive data
@@ -38,7 +38,8 @@ export const Clients: CollectionConfig = {
               required: true,
               unique: true,
               admin: {
-                description: 'The domain for this brand (e.g., luxe-hotels.com or luxe-hotels.local for development)',
+                description:
+                  'The domain for this brand (e.g., luxe-hotels.com or luxe-hotels.local for development)',
               },
             },
             {

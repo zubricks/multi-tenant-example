@@ -10,7 +10,7 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
-  'clients',
+  'brands',
 ]
 
 const tenantGlobalCollections: CollectionSlug[] = ['header', 'footer']
@@ -18,18 +18,11 @@ const tenantGlobalCollections: CollectionSlug[] = ['header', 'footer']
 // Unsplash image IDs for hotel/travel themed images
 const unsplashImageSets = [
   ['KtOid0FLjqU', 'HQaZKCDaax0', '0qvBNep1Y04', 'yGPxCYPS8H4'], // Luxe
-  ['kDpT8DalqXs', 'e3OUQGT9bWU', 'yCW4nEm7gRg', 'MdJq0zFUwrw'], // Comfort
   ['W49tMyNy4uk', 'D5nh6mCW52c', 'HH4WBGNyltc', 'Xq1ntWruZQI'], // Budget
-  ['whJ8wT-fYkw', 'Mv9hjnEUHR4', 'uRUrNsuoGbA', 'kMr7DKRd-vw'], // Grand Plaza
-  ['NodtnCsLdTE', 'qfjX4SBTX2U', 'S-YssWw00G0', 'yBzrPGLjMQw'], // Coastal
-  ['G4xM8nPmKEQ', 'bjhrzvzZMa0', 'WEQbe2jBg40', 'KZNTEn2r9Gw'], // Urban
-  ['73F4pKoUkM0', 'sfL_QOnmy00', 'eOpewngf68w', 'K2td5hI-5-8'], // Mountain
-  ['Pse8xc8wvuo', 'sO-JmQj95ec', 'TrhLCn1abMU', 'pYWuOMhtc6k'], // Metro
-  ['t20pc32VbrU', 'bku_bxGBcdI', 'zzFRvHHxJCc', 'lV6NRy0EpXE'], // Family
-  ['vUNQaTtZeOo', 'lMzaKx-xYO0', 'BNvk1zqEAjc', 'JvA4fYmM3kM'], // Boutique
+  ['kDpT8DalqXs', 'e3OUQGT9bWU', 'yCW4nEm7gRg', 'MdJq0zFUwrw'], // Comfort
 ]
 
-// Define 10 hotel brands with unique colors and characteristics
+// Define 3 hotel brands with unique colors and characteristics
 const tenantData = [
   {
     name: 'Luxe Hotels',
@@ -37,6 +30,7 @@ const tenantData = [
     domain: 'luxe-hotels.local',
     tagline: 'Where luxury meets elegance',
     imageSet: 0,
+    logoFile: 'luxe.svg',
     colors: {
       primaryColor: '#D4AF37', // Gold
       secondaryColor: '#1A1A1A', // Black
@@ -51,30 +45,12 @@ const tenantData = [
     },
   },
   {
-    name: 'Comfort Stays',
-    slug: 'comfort-stays',
-    domain: 'comfort-stays.local',
-    tagline: 'Comfort for every journey',
-    imageSet: 1,
-    colors: {
-      primaryColor: '#0078D4', // Blue
-      secondaryColor: '#FFFFFF', // White
-      accentColor: '#50E3C2', // Turquoise
-      backgroundColor: '#F5F5F5',
-      foregroundColor: '#212121',
-      borderColor: '#0078D4',
-    },
-    fonts: {
-      headingFont: 'inter',
-      bodyFont: 'open-sans',
-    },
-  },
-  {
     name: 'Budget Inn',
     slug: 'budget-inn',
     domain: 'budget-inn.local',
     tagline: 'Affordable stays, great memories',
-    imageSet: 2,
+    imageSet: 1,
+    logoFile: 'budget.svg',
     colors: {
       primaryColor: '#28A745', // Green
       secondaryColor: '#FF6B35', // Orange
@@ -89,136 +65,23 @@ const tenantData = [
     },
   },
   {
-    name: 'Grand Plaza Suites',
-    slug: 'grand-plaza',
-    domain: 'grand-plaza.local',
-    tagline: 'Experience grandeur and sophistication',
-    imageSet: 3,
+    name: 'Comfort Stays',
+    slug: 'comfort-stays',
+    domain: 'comfort-stays.local',
+    tagline: 'Comfort for every journey',
+    imageSet: 2,
+    logoFile: 'comfort.svg',
     colors: {
-      primaryColor: '#8B0000', // Dark Red
-      secondaryColor: '#FFD700', // Gold
-      accentColor: '#4B0082', // Indigo
-      backgroundColor: '#FAF9F6',
-      foregroundColor: '#1C1C1C',
-      borderColor: '#8B0000',
-    },
-    fonts: {
-      headingFont: 'playfair-display',
-      bodyFont: 'lato',
-    },
-  },
-  {
-    name: 'Coastal Retreat',
-    slug: 'coastal-retreat',
-    domain: 'coastal-retreat.local',
-    tagline: 'Escape to serenity by the sea',
-    imageSet: 4,
-    colors: {
-      primaryColor: '#006994', // Ocean Blue
-      secondaryColor: '#E8F4F8', // Light Blue
-      accentColor: '#FF7E5F', // Coral
-      backgroundColor: '#FFFFFF',
-      foregroundColor: '#2C3E50',
-      borderColor: '#006994',
-    },
-    fonts: {
-      headingFont: 'montserrat',
-      bodyFont: 'open-sans',
-    },
-  },
-  {
-    name: 'Urban Loft Hotels',
-    slug: 'urban-loft',
-    domain: 'urban-loft.local',
-    tagline: 'Modern living in the heart of the city',
-    imageSet: 5,
-    colors: {
-      primaryColor: '#2C3E50', // Dark Blue-Gray
-      secondaryColor: '#ECF0F1', // Light Gray
-      accentColor: '#E74C3C', // Red
-      backgroundColor: '#FFFFFF',
-      foregroundColor: '#34495E',
-      borderColor: '#2C3E50',
+      primaryColor: '#0078D4', // Blue
+      secondaryColor: '#FFFFFF', // White
+      accentColor: '#50E3C2', // Turquoise
+      backgroundColor: '#F5F5F5',
+      foregroundColor: '#212121',
+      borderColor: '#0078D4',
     },
     fonts: {
       headingFont: 'inter',
-      bodyFont: 'roboto',
-    },
-  },
-  {
-    name: 'Mountain View Lodge',
-    slug: 'mountain-view',
-    domain: 'mountain-view.local',
-    tagline: 'Breathtaking views, unforgettable stays',
-    imageSet: 6,
-    colors: {
-      primaryColor: '#6B8E23', // Olive Green
-      secondaryColor: '#8B4513', // Brown
-      accentColor: '#DAA520', // Goldenrod
-      backgroundColor: '#F5F5DC',
-      foregroundColor: '#3E2723',
-      borderColor: '#6B8E23',
-    },
-    fonts: {
-      headingFont: 'montserrat',
-      bodyFont: 'lato',
-    },
-  },
-  {
-    name: 'Metro Business Hotel',
-    slug: 'metro-business',
-    domain: 'metro-business.local',
-    tagline: 'Where productivity meets comfort',
-    imageSet: 7,
-    colors: {
-      primaryColor: '#1C1C1C', // Charcoal
-      secondaryColor: '#4A90E2', // Blue
-      accentColor: '#7ED321', // Green
-      backgroundColor: '#FFFFFF',
-      foregroundColor: '#333333',
-      borderColor: '#1C1C1C',
-    },
-    fonts: {
-      headingFont: 'inter',
-      bodyFont: 'roboto',
-    },
-  },
-  {
-    name: 'Family Inn & Suites',
-    slug: 'family-inn',
-    domain: 'family-inn.local',
-    tagline: 'Creating memories together',
-    imageSet: 8,
-    colors: {
-      primaryColor: '#FF6B6B', // Coral Red
-      secondaryColor: '#4ECDC4', // Turquoise
-      accentColor: '#FFE66D', // Yellow
-      backgroundColor: '#FFF9F5',
-      foregroundColor: '#2D3436',
-      borderColor: '#FF6B6B',
-    },
-    fonts: {
-      headingFont: 'montserrat',
       bodyFont: 'open-sans',
-    },
-  },
-  {
-    name: 'Boutique Central',
-    slug: 'boutique-central',
-    domain: 'boutique-central.local',
-    tagline: 'Unique experiences, personal touch',
-    imageSet: 9,
-    colors: {
-      primaryColor: '#9B59B6', // Purple
-      secondaryColor: '#F39C12', // Orange
-      accentColor: '#1ABC9C', // Teal
-      backgroundColor: '#FFFFFF',
-      foregroundColor: '#2C3E50',
-      borderColor: '#9B59B6',
-    },
-    fonts: {
-      headingFont: 'playfair-display',
-      bodyFont: 'lato',
     },
   },
 ]
@@ -296,12 +159,8 @@ export const seedMultiTenant = async ({
     payload.logger.info(`    → Fetching images and logo for ${tenant.name}`)
     const imageIds = unsplashImageSets[tenant.imageSet]
 
-    // Fetch logo using UI Avatars with brand colors
-    const logoBuffer = await fetchLogoFromUIAvatars(
-      tenant.name,
-      tenant.colors.primaryColor,
-      tenant.colors.backgroundColor,
-    )
+    // Load logo from public/svg folder
+    const logoBuffer = await fetchLogoFromPublicFolder(tenant.logoFile)
     await new Promise((resolve) => setTimeout(resolve, 500)) // 500ms delay
 
     // Fetch images one at a time with delays to avoid 503 errors
@@ -341,9 +200,9 @@ export const seedMultiTenant = async ({
       }),
     ])
 
-    // Create tenant/client
-    const client = await payload.create({
-      collection: 'clients',
+    // Create tenant/brand
+    const brand = await payload.create({
+      collection: 'brands',
       data: {
         name: tenant.name,
         slug: tenant.slug,
@@ -374,7 +233,7 @@ export const seedMultiTenant = async ({
       data: {
         title: `Welcome to ${tenant.name}`,
         slug: `welcome`,
-        tenant: client.id,
+        tenant: brand.id,
         _status: 'published',
         publishedAt: new Date().toISOString(),
         authors: [demoAuthor.id],
@@ -409,7 +268,7 @@ export const seedMultiTenant = async ({
       data: {
         title: `Top Amenities at ${tenant.name}`,
         slug: `amenities`,
-        tenant: client.id,
+        tenant: brand.id,
         _status: 'published',
         publishedAt: new Date(Date.now() - 86400000).toISOString(),
         authors: [demoAuthor.id],
@@ -445,7 +304,7 @@ export const seedMultiTenant = async ({
       data: {
         title: `Special Offers from ${tenant.name}`,
         slug: `offers`,
-        tenant: client.id,
+        tenant: brand.id,
         _status: 'published',
         publishedAt: new Date(Date.now() - 172800000).toISOString(),
         authors: [demoAuthor.id],
@@ -501,7 +360,7 @@ export const seedMultiTenant = async ({
       data: {
         title: 'Home',
         slug: `home`,
-        tenant: client.id,
+        tenant: brand.id,
         _status: 'published',
         publishedAt: new Date().toISOString(),
         hero: {
@@ -762,7 +621,7 @@ export const seedMultiTenant = async ({
       data: {
         title: 'Contact',
         slug: `contact`,
-        tenant: client.id,
+        tenant: brand.id,
         _status: 'published',
         publishedAt: new Date().toISOString(),
         hero: {
@@ -814,7 +673,7 @@ export const seedMultiTenant = async ({
       data: {
         title: 'Posts',
         slug: `posts`,
-        tenant: client.id,
+        tenant: brand.id,
         _status: 'published',
         publishedAt: new Date().toISOString(),
         hero: {
@@ -867,7 +726,7 @@ export const seedMultiTenant = async ({
     await payload.create({
       collection: 'header',
       data: {
-        tenant: client.id,
+        tenant: brand.id,
         navItems: [
           {
             link: {
@@ -891,7 +750,7 @@ export const seedMultiTenant = async ({
     await payload.create({
       collection: 'footer',
       data: {
-        tenant: client.id,
+        tenant: brand.id,
         navItems: [
           {
             link: {
@@ -928,67 +787,25 @@ export const seedMultiTenant = async ({
   payload.logger.info(`  - Unique branding and colors`)
 }
 
-async function fetchLogoFromUIAvatars(
-  name: string,
-  backgroundColor: string,
-  textColor: string,
-  retries = 3,
-): Promise<File> {
-  // UI Avatars generates simple letter-based logos
-  // Extract initials from brand name (e.g., "Luxe Hotels" -> "LH")
-  const initials = name
-    .split(' ')
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
+async function fetchLogoFromPublicFolder(logoFileName: string): Promise<File> {
+  const fs = await import('fs/promises')
+  const path = await import('path')
 
-  // Remove # from colors for URL
-  const bgColor = backgroundColor.replace('#', '')
-  const fgColor = textColor.replace('#', '')
+  // Construct path to logo file in public/svg folder
+  const logoPath = path.join(process.cwd(), 'public', 'svg', logoFileName)
 
-  const url = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=512&background=${bgColor}&color=${fgColor}&bold=true&format=png`
+  try {
+    const data = await fs.readFile(logoPath)
 
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0',
-        },
-      })
-
-      if (!res.ok) {
-        if (attempt < retries) {
-          const delay = 1000 * attempt
-          console.log(
-            `UI Avatars returned ${res.status} for ${name}, retrying in ${delay}ms (attempt ${attempt}/${retries})`,
-          )
-          await new Promise((resolve) => setTimeout(resolve, delay))
-          continue
-        }
-        throw new Error(`Failed to fetch logo from UI Avatars: ${name}, status: ${res.status}`)
-      }
-
-      const data = await res.arrayBuffer()
-
-      return {
-        name: `${name.toLowerCase().replace(/\s+/g, '-')}-logo.png`,
-        data: Buffer.from(data),
-        mimetype: 'image/png',
-        size: data.byteLength,
-      }
-    } catch (error) {
-      if (attempt === retries) {
-        throw error
-      }
-      const delay = 1000 * attempt
-      console.log(`Network error fetching logo for ${name}, retrying in ${delay}ms (attempt ${attempt}/${retries})`)
-      await new Promise((resolve) => setTimeout(resolve, delay))
+    return {
+      name: logoFileName,
+      data: data as Buffer,
+      mimetype: 'image/svg+xml',
+      size: data.length,
     }
+  } catch (error) {
+    throw new Error(`Failed to load logo from ${logoPath}: ${error}`)
   }
-
-  throw new Error(`Failed to fetch logo after ${retries} attempts: ${name}`)
 }
 
 async function fetchUnsplashImage(

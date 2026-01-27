@@ -35,7 +35,8 @@ export default async function RootLayout({ children, params: paramsPromise }: La
   // Fetch tenant data
   const payload = await getPayload({ config: configPromise })
   const tenantResult = await payload.find({
-    collection: 'clients',
+    collection: 'brands',
+    depth: 1,
     where: {
       domain: {
         equals: tenantDomain,

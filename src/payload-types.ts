@@ -72,7 +72,7 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
-    clients: Client;
+    brands: Brand;
     amenities: Amenity;
     header: Header;
     footer: Footer;
@@ -98,7 +98,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
-    clients: ClientsSelect<false> | ClientsSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
     amenities: AmenitiesSelect<false> | AmenitiesSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
@@ -158,7 +158,7 @@ export interface UserAuthOperations {
  */
 export interface Page {
   id: string;
-  tenant?: (string | null) | Client;
+  tenant?: (string | null) | Brand;
   title: string;
   hero: {
     type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
@@ -233,9 +233,9 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clients".
+ * via the `definition` "brands".
  */
-export interface Client {
+export interface Brand {
   id: string;
   name: string;
   slug: string;
@@ -434,7 +434,7 @@ export interface FolderInterface {
  */
 export interface Post {
   id: string;
-  tenant?: (string | null) | Client;
+  tenant?: (string | null) | Brand;
   title: string;
   heroImage?: (string | null) | Media;
   content: {
@@ -513,7 +513,7 @@ export interface User {
   roles: ('super-admin' | 'user')[];
   tenants?:
     | {
-        tenant: string | Client;
+        tenant: string | Brand;
         id?: string | null;
       }[]
     | null;
@@ -1009,7 +1009,7 @@ export interface Form {
  */
 export interface Header {
   id: string;
-  tenant?: (string | null) | Client;
+  tenant?: (string | null) | Brand;
   title?: string | null;
   navItems?:
     | {
@@ -1066,7 +1066,7 @@ export interface Header {
  */
 export interface Footer {
   id: string;
-  tenant?: (string | null) | Client;
+  tenant?: (string | null) | Brand;
   title?: string | null;
   navItems?:
     | {
@@ -1302,8 +1302,8 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
-        relationTo: 'clients';
-        value: string | Client;
+        relationTo: 'brands';
+        value: string | Brand;
       } | null)
     | ({
         relationTo: 'amenities';
@@ -1747,9 +1747,9 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clients_select".
+ * via the `definition` "brands_select".
  */
-export interface ClientsSelect<T extends boolean = true> {
+export interface BrandsSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   domain?: T;

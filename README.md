@@ -136,7 +136,6 @@ This example uses Next.js rewrites to transform domain-based requests into path-
 - No middleware or custom headers required
 - Native Next.js functionality using rewrites
 - Supports static generation with `generateStaticParams`
-- Cleaner code with tenant as a standard URL parameter
 
 The rewrite excludes admin, API, and static asset routes, ensuring they function normally.
 
@@ -271,7 +270,6 @@ All pages and posts support draft previews with [Versions](https://payloadcms.co
 
 - Create drafts without publishing
 - Preview unpublished changes
-- Scheduled publishing via jobs queue
 - Automatic revalidation on publish
 
 ## SEO and Search
@@ -292,65 +290,6 @@ Implements the [Payload Search Plugin](https://payloadcms.com/docs/plugins/searc
 - Search across pages and posts
 - Tenant-scoped search results
 - SSR search functionality
-
-## Jobs and Scheduled Publishing
-
-Configured with Payload's [Jobs Queue](https://payloadcms.com/docs/jobs-queue/jobs) for:
-
-- Scheduled publishing of content
-- Scheduled unpublishing
-- Background task processing
-
-> **Note**: When deployed on Vercel, depending on your plan tier, you may be limited to daily cron only.
-
-## Development
-
-### Working with MongoDB
-
-This example uses MongoDB with the Mongoose adapter. The database connection is configured in `.env`:
-
-```
-DATABASE_URI=mongodb://localhost:27017/multi-tenant-example
-```
-
-For production deployments, use a hosted MongoDB service like MongoDB Atlas.
-
-### Working with Postgres
-
-To switch to Postgres:
-
-1. Install the Postgres adapter:
-
-   ```bash
-   pnpm add @payloadcms/db-postgres
-   ```
-
-2. Update [src/payload.config.ts](src/payload.config.ts):
-
-   ```typescript
-   import { postgresAdapter } from '@payloadcms/db-postgres'
-
-   export default buildConfig({
-     db: postgresAdapter({
-       pool: {
-         connectionString: process.env.DATABASE_URI || '',
-       },
-     }),
-     // ...
-   })
-   ```
-
-3. Update your `.env`:
-
-   ```
-   DATABASE_URI=postgres://user:password@localhost:5432/multi-tenant-example
-   ```
-
-4. Generate and run migrations:
-   ```bash
-   pnpm payload migrate:create
-   pnpm payload migrate
-   ```
 
 ### Seeding Data
 

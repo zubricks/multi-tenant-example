@@ -16,41 +16,27 @@ const BeforeDashboard: React.FC = () => {
       <ul className={`${baseClass}__instructions`}>
         <li>
           <SeedButton />
-          {' with a few pages, posts, and projects to jump-start your new site, then '}
-          <a href="/" target="_blank">
-            visit your website
-          </a>
-          {' to see the results.'}
+          {
+            ' to populate the database with 3 demo hotel brands (Luxe Hotels, Budget Inn, and Comfort Stays). Each tenant will get unique branding, pages, posts, and images.'
+          }
         </li>
         <li>
-          {'Modify your '}
+          {
+            'After seeding, visit each tenant site by updating your hosts file or using the domain switching functionality to see how each brand has its own unique look and content.'
+          }
+        </li>
+        <li>
+          {'Explore the '}
           <a
             href="https://payloadcms.com/docs/configuration/collections"
             rel="noopener noreferrer"
             target="_blank"
           >
-            collections
+            multi-tenant architecture
           </a>
-          {' and add more '}
-          <a
-            href="https://payloadcms.com/docs/fields/overview"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            fields
-          </a>
-          {' as needed. If you are new to Payload, we also recommend you check out the '}
-          <a
-            href="https://payloadcms.com/docs/getting-started/what-is-payload"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            Getting Started
-          </a>
-          {' docs.'}
-        </li>
-        <li>
-          Commit and push your changes to the repository to trigger a redeployment of your project.
+          {
+            ' to understand how tenant isolation works. Each collection is filtered by tenant, and globals (header/footer) are tenant-specific.'
+          }
         </li>
       </ul>
       {'Pro Tip: This block is a '}

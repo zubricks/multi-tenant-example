@@ -79,7 +79,7 @@ export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
 
   const tenants = await payload.find({
-    collection: 'clients',
+    collection: 'brands',
     limit: 1000,
   })
 
