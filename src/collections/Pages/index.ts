@@ -55,6 +55,7 @@ export const Pages: CollectionConfig<'pages'> = {
           slug: data?.slug,
           collection: 'pages',
           req,
+          data,
         }),
     },
     preview: (data, { req }) =>
@@ -62,6 +63,7 @@ export const Pages: CollectionConfig<'pages'> = {
         slug: data?.slug as string,
         collection: 'pages',
         req,
+        data,
       }),
     useAsTitle: 'title',
   },
