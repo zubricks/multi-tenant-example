@@ -8,6 +8,7 @@ import { BrandGridBlock } from '@/blocks/BrandGrid/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
+import { ImageGalleryBlock } from '@/blocks/ImageGallery/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { MediaContentBlock } from '@/blocks/MediaContent/Component'
 
@@ -18,6 +19,7 @@ const blockComponents = {
   content: ContentBlock,
   cta: CallToActionBlock,
   formBlock: FormBlock,
+  imageGallery: ImageGalleryBlock,
   mediaBlock: MediaBlock,
   mediaContent: MediaContentBlock,
 }

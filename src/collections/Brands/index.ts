@@ -1,3 +1,4 @@
+// Tenants Collection
 import type { CollectionConfig } from 'payload'
 
 export const Brands: CollectionConfig = {
@@ -214,6 +215,32 @@ export const Brands: CollectionConfig = {
                   name: 'contactPhone',
                   type: 'text',
                 },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Features & Permissions',
+          fields: [
+            {
+              name: 'allowedBlocks',
+              type: 'select',
+              hasMany: true,
+              admin: {
+                description:
+                  'Select which content blocks this brand can use on their pages. Leave empty to allow all blocks.',
+                isClearable: true,
+              },
+              options: [
+                { label: 'Call to Action', value: 'cta' },
+                { label: 'Content', value: 'content' },
+                { label: 'Media Block', value: 'mediaBlock' },
+                { label: 'Media Content', value: 'mediaContent' },
+                { label: 'Amenities', value: 'amenities' },
+                { label: 'Brand Grid', value: 'brandGrid' },
+                { label: 'Archive', value: 'archive' },
+                { label: 'Form', value: 'formBlock' },
+                { label: 'Image Gallery', value: 'imageGallery' },
               ],
             },
           ],

@@ -8,6 +8,7 @@ import { BrandGridBlock } from '../../blocks/BrandGrid/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
+import { ImageGalleryBlock } from '../../blocks/ImageGallery/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { MediaContent } from '../../blocks/MediaContent/config'
 import { hero } from '@/heros/config'
@@ -82,10 +83,69 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, MediaContent, AmenitiesBlock, BrandGridBlock, Archive, FormBlock],
+              blocks: [CallToAction, Content, MediaBlock, MediaContent, AmenitiesBlock, BrandGridBlock, Archive, FormBlock, ImageGalleryBlock],
               required: true,
               admin: {
                 initCollapsed: true,
+                components: {
+                  Field: '/collections/Pages/components/TenantAwareBlocksField#TenantAwareBlocksField',
+                },
+              },
+              validate: async (value, { data, req }) => {
+                const pageData = data as { tenant?: string | number }
+                const blocksValue = value as Array<{ blockType: string }> | undefined
+
+                // Skip validation if no tenant or no blocks
+                if (!pageData?.tenant || !blocksValue || blocksValue.length === 0) {
+                  return true
+                }
+
+                try {
+                  // Fetch the brand/tenant to check allowed blocks
+                  const brand = await req.payload.findByID({
+                    collection: 'brands',
+                    id: pageData.tenant,
+                  })
+
+                  // If allowedBlocks is not set or empty, allow all blocks
+                  if (!brand.allowedBlocks || brand.allowedBlocks.length === 0) {
+                    return true
+                  }
+
+                  // Check each block in the layout
+                  const invalidBlocks: string[] = []
+                  for (const block of blocksValue) {
+                    if (!(brand.allowedBlocks as string[]).includes(block.blockType)) {
+                      invalidBlocks.push(block.blockType)
+                    }
+                  }
+
+                  if (invalidBlocks.length > 0) {
+                    const blockNames = invalidBlocks.map(slug => {
+                      // Map slugs to friendly names
+                      const nameMap: Record<string, string> = {
+                        cta: 'Call to Action',
+                        content: 'Content',
+                        mediaBlock: 'Media Block',
+                        mediaContent: 'Media Content',
+                        amenities: 'Amenities',
+                        brandGrid: 'Brand Grid',
+                        archive: 'Archive',
+                        formBlock: 'Form',
+                        imageGallery: 'Image Gallery',
+                      }
+                      return nameMap[slug] || slug
+                    }).join(', ')
+
+                    return `This brand does not have access to the following blocks: ${blockNames}`
+                  }
+
+                  return true
+                } catch (error) {
+                  // If we can't fetch the brand, allow the blocks (fail open)
+                  console.error('Error validating blocks:', error)
+                  return true
+                }
               },
             },
           ],

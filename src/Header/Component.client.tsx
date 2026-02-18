@@ -57,7 +57,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, tenant }) => {
             />
           ) : (
             <img
-              src="/svg/apex-logo.svg"
+              src="https://raw.githubusercontent.com/zubricks/multi-tenant-example/ae4e955c541f4ad773cd8ce7ff8f501a6e2aab33/public/SVG/apex-logo.svg"
               alt="Apex Logo"
               className="max-w-[9.375rem] w-full h-[34px] object-contain"
               loading="eager"

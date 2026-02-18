@@ -212,6 +212,7 @@ export interface Page {
     | BrandGridBlock
     | ArchiveBlock
     | FormBlock
+    | ImageGalleryBlock
   )[];
   meta?: {
     title?: string | null;
@@ -306,6 +307,22 @@ export interface Brand {
     contactEmail?: string | null;
     contactPhone?: string | null;
   };
+  /**
+   * Select which content blocks this brand can use on their pages. Leave empty to allow all blocks.
+   */
+  allowedBlocks?:
+    | (
+        | 'cta'
+        | 'content'
+        | 'mediaBlock'
+        | 'mediaContent'
+        | 'amenities'
+        | 'brandGrid'
+        | 'archive'
+        | 'formBlock'
+        | 'imageGallery'
+      )[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1005,6 +1022,38 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageGalleryBlock".
+ */
+export interface ImageGalleryBlock {
+  /**
+   * Optional heading displayed above the gallery
+   */
+  heading?: string | null;
+  /**
+   * Add images to display in the gallery slider
+   */
+  images: {
+    image: string | Media;
+    /**
+     * Optional caption for this image
+     */
+    caption?: string | null;
+    id?: string | null;
+  }[];
+  /**
+   * Automatically advance slides
+   */
+  autoplay?: boolean | null;
+  /**
+   * Time between slides (in milliseconds)
+   */
+  autoplaySpeed?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageGallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
@@ -1419,6 +1468,7 @@ export interface PagesSelect<T extends boolean = true> {
         brandGrid?: T | BrandGridBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        imageGallery?: T | ImageGalleryBlockSelect<T>;
       };
   meta?:
     | T
@@ -1566,6 +1616,24 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ImageGalleryBlock_select".
+ */
+export interface ImageGalleryBlockSelect<T extends boolean = true> {
+  heading?: T;
+  images?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  autoplay?: T;
+  autoplaySpeed?: T;
   id?: T;
   blockName?: T;
 }
@@ -1785,6 +1853,7 @@ export interface BrandsSelect<T extends boolean = true> {
         contactEmail?: T;
         contactPhone?: T;
       };
+  allowedBlocks?: T;
   updatedAt?: T;
   createdAt?: T;
 }
