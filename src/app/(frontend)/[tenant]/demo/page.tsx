@@ -6,16 +6,14 @@ import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
   return await generateMeta({
-    doc: homeStatic as any,
+    doc: homeStatic,
   })
 }
 
 export default async function DemoPage() {
   return (
     <article className="pb-24 pt-16">
-      {/* @ts-expect-error */}
       <RenderHero {...homeStatic.hero} />
-      {/* @ts-expect-error */}
       <RenderBlocks blocks={homeStatic.layout} />
     </article>
   )

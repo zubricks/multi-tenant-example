@@ -33,11 +33,11 @@ export const ImageGalleryBlock: React.FC<Props> = (props) => {
     if (!autoplay || !images || images.length <= 1) return
 
     const interval = setInterval(() => {
-      goToNext()
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
     }, autoplaySpeed || 5000)
 
     return () => clearInterval(interval)
-  }, [autoplay, autoplaySpeed, images, currentIndex])
+  }, [autoplay, autoplaySpeed, images])
 
   if (!images || images.length === 0) {
     return null

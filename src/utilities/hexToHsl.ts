@@ -26,7 +26,7 @@ export function hexToHsl(hex: string | null | undefined): string | null {
   const delta = max - min
 
   // Calculate lightness
-  let l = (max + min) / 2
+  const l = (max + min) / 2
 
   // Calculate saturation
   let s = 0

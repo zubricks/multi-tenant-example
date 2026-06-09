@@ -211,8 +211,18 @@ export const seedMultiTenant = async ({
         logo: logoDoc.id,
         brandColors: tenant.colors,
         typography: {
-          headingFont: tenant.fonts.headingFont as 'inter' | 'playfair-display' | 'montserrat' | 'raleway' | 'poppins',
-          bodyFont: tenant.fonts.bodyFont as 'inter' | 'open-sans' | 'lato' | 'roboto' | 'source-sans-3',
+          headingFont: tenant.fonts.headingFont as
+            | 'inter'
+            | 'playfair-display'
+            | 'montserrat'
+            | 'raleway'
+            | 'poppins',
+          bodyFont: tenant.fonts.bodyFont as
+            | 'inter'
+            | 'open-sans'
+            | 'lato'
+            | 'roboto'
+            | 'source-sans-3',
         },
         seoMetadata: {
           siteTitle: `${tenant.name} - ${tenant.tagline}`,
@@ -242,12 +252,18 @@ export const seedMultiTenant = async ({
         content: {
           root: {
             type: 'root',
+            version: 1,
+            format: '',
+            indent: 0,
+            direction: 'ltr',
             children: [
               {
                 type: 'paragraph',
+                version: 1,
                 children: [
                   {
                     type: 'text',
+                    version: 1,
                     text: `Discover the unique experience that ${tenant.name} has to offer. ${tenant.tagline}`,
                   },
                 ],
@@ -277,12 +293,18 @@ export const seedMultiTenant = async ({
         content: {
           root: {
             type: 'root',
+            version: 1,
+            format: '',
+            indent: 0,
+            direction: 'ltr',
             children: [
               {
                 type: 'paragraph',
+                version: 1,
                 children: [
                   {
                     type: 'text',
+                    version: 1,
                     text: `Explore the exceptional amenities available at ${tenant.name}. From world-class facilities to personalized services, we ensure your stay is comfortable and memorable.`,
                   },
                 ],
@@ -313,12 +335,18 @@ export const seedMultiTenant = async ({
         content: {
           root: {
             type: 'root',
+            version: 1,
+            format: '',
+            indent: 0,
+            direction: 'ltr',
             children: [
               {
                 type: 'paragraph',
+                version: 1,
                 children: [
                   {
                     type: 'text',
+                    version: 1,
                     text: `Don't miss out on our exclusive offers and packages at ${tenant.name}. Book now and experience luxury at unbeatable prices.`,
                   },
                 ],
@@ -369,22 +397,30 @@ export const seedMultiTenant = async ({
           richText: {
             root: {
               type: 'root',
+              version: 1,
+              format: '',
+              indent: 0,
+              direction: 'ltr',
               children: [
                 {
                   type: 'heading',
+                  version: 1,
                   tag: 'h1',
                   children: [
                     {
                       type: 'text',
+                      version: 1,
                       text: `Large hero heading for ${tenant.name}`,
                     },
                   ],
                 },
                 {
                   type: 'paragraph',
+                  version: 1,
                   children: [
                     {
                       type: 'text',
+                      version: 1,
                       text: tenant.tagline,
                     },
                   ],
@@ -422,22 +458,30 @@ export const seedMultiTenant = async ({
                 richText: {
                   root: {
                     type: 'root',
+                    version: 1,
+                    format: '',
+                    indent: 0,
+                    direction: 'ltr',
                     children: [
                       {
                         type: 'heading',
+                        version: 1,
                         tag: 'h2',
                         children: [
                           {
                             type: 'text',
+                            version: 1,
                             text: `Welcome to ${tenant.name}`,
                           },
                         ],
                       },
                       {
                         type: 'paragraph',
+                        version: 1,
                         children: [
                           {
                             type: 'text',
+                            version: 1,
                             text: `Experience hospitality at its finest. ${tenant.tagline}`,
                           },
                         ],
@@ -456,22 +500,30 @@ export const seedMultiTenant = async ({
             richText: {
               root: {
                 type: 'root',
+                version: 1,
+                format: '',
+                indent: 0,
+                direction: 'ltr',
                 children: [
                   {
                     type: 'heading',
+                    version: 1,
                     tag: 'h2',
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'Exceptional Service',
                       },
                     ],
                   },
                   {
                     type: 'paragraph',
+                    version: 1,
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'Our dedicated team ensures every guest receives personalized attention and care.',
                       },
                     ],
@@ -479,16 +531,13 @@ export const seedMultiTenant = async ({
                 ],
               },
             },
-            links: [
-              {
-                link: {
-                  type: 'custom',
-                  label: 'Learn More',
-                  url: '/about',
-                  appearance: 'default',
-                },
-              },
-            ],
+            enableLink: true,
+            link: {
+              type: 'custom',
+              label: 'Learn More',
+              url: '/about',
+              appearance: 'default',
+            },
           },
           {
             blockType: 'mediaContent',
@@ -498,22 +547,30 @@ export const seedMultiTenant = async ({
             richText: {
               root: {
                 type: 'root',
+                version: 1,
+                format: '',
+                indent: 0,
+                direction: 'ltr',
                 children: [
                   {
                     type: 'heading',
+                    version: 1,
                     tag: 'h2',
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'World-Class Amenities',
                       },
                     ],
                   },
                   {
                     type: 'paragraph',
+                    version: 1,
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'From spa services to fine dining, we offer everything you need for a perfect stay.',
                       },
                     ],
@@ -521,16 +578,13 @@ export const seedMultiTenant = async ({
                 ],
               },
             },
-            links: [
-              {
-                link: {
-                  type: 'custom',
-                  label: 'Explore Amenities',
-                  url: '/posts/amenities',
-                  appearance: 'default',
-                },
-              },
-            ],
+            enableLink: true,
+            link: {
+              type: 'custom',
+              label: 'Explore Amenities',
+              url: '/posts/amenities',
+              appearance: 'default',
+            },
           },
           {
             blockType: 'archive',
@@ -542,22 +596,30 @@ export const seedMultiTenant = async ({
             introContent: {
               root: {
                 type: 'root',
+                version: 1,
+                format: '',
+                indent: 0,
+                direction: 'ltr',
                 children: [
                   {
                     type: 'heading',
+                    version: 1,
                     tag: 'h2',
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'Latest from Our Blog',
                       },
                     ],
                   },
                   {
                     type: 'paragraph',
+                    version: 1,
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'Stay updated with the latest news, offers, and travel tips from our team.',
                       },
                     ],
@@ -572,22 +634,30 @@ export const seedMultiTenant = async ({
             richText: {
               root: {
                 type: 'root',
+                version: 1,
+                format: '',
+                indent: 0,
+                direction: 'ltr',
                 children: [
                   {
                     type: 'heading',
+                    version: 1,
                     tag: 'h2',
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'Ready to Book Your Stay?',
                       },
                     ],
                   },
                   {
                     type: 'paragraph',
+                    version: 1,
                     children: [
                       {
                         type: 'text',
+                        version: 1,
                         text: 'Contact us today to reserve your room and experience the best hospitality.',
                       },
                     ],
@@ -629,22 +699,30 @@ export const seedMultiTenant = async ({
           richText: {
             root: {
               type: 'root',
+              version: 1,
+              format: '',
+              indent: 0,
+              direction: 'ltr',
               children: [
                 {
                   type: 'heading',
+                  version: 1,
                   tag: 'h1',
                   children: [
                     {
                       type: 'text',
+                      version: 1,
                       text: 'Contact Us',
                     },
                   ],
                 },
                 {
                   type: 'paragraph',
+                  version: 1,
                   children: [
                     {
                       type: 'text',
+                      version: 1,
                       text: `Get in touch with ${tenant.name}. We're here to help!`,
                     },
                   ],
@@ -681,22 +759,30 @@ export const seedMultiTenant = async ({
           richText: {
             root: {
               type: 'root',
+              version: 1,
+              format: '',
+              indent: 0,
+              direction: 'ltr',
               children: [
                 {
                   type: 'heading',
+                  version: 1,
                   tag: 'h1',
                   children: [
                     {
                       type: 'text',
+                      version: 1,
                       text: 'Our Blog',
                     },
                   ],
                 },
                 {
                   type: 'paragraph',
+                  version: 1,
                   children: [
                     {
                       type: 'text',
+                      version: 1,
                       text: 'Latest news, tips, and updates from our team.',
                     },
                   ],
@@ -853,7 +939,9 @@ async function fetchUnsplashImage(
         throw error
       }
       const delay = 1000 * attempt
-      console.log(`Network error fetching seed ${seed}, retrying in ${delay}ms (attempt ${attempt}/${retries})`)
+      console.log(
+        `Network error fetching seed ${seed}, retrying in ${delay}ms (attempt ${attempt}/${retries})`,
+      )
       await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }

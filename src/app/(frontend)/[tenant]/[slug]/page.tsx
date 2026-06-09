@@ -16,11 +16,6 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
 
-  const tenants = await payload.find({
-    collection: 'brands',
-    limit: 1000,
-  })
-
   const pages = await payload.find({
     collection: 'pages',
     draft: false,

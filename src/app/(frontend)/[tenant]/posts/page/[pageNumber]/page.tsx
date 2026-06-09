@@ -78,11 +78,6 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
 
-  const tenants = await payload.find({
-    collection: 'brands',
-    limit: 1000,
-  })
-
   const posts = await payload.find({
     collection: 'posts',
     limit: 1000,

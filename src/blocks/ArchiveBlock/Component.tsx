@@ -1,4 +1,5 @@
 import type { Post, ArchiveBlock as ArchiveBlockProps } from '@/payload-types'
+import type { Where } from 'payload'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -36,7 +37,7 @@ export const ArchiveBlock: React.FC<
     })
 
     // Build where clause with tenant filter
-    const whereConditions: any[] = []
+    const whereConditions: Where[] = []
 
     // Add tenant filter
     if (tenantDomain) {

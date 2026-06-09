@@ -2,11 +2,13 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 
-import type { Header as HeaderType, Client } from '@/payload-types'
+import type { Header as HeaderType, Brand } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import Link from 'next/link'
 import { SearchIcon, ChevronDown } from 'lucide-react'
+
+type NavItem = NonNullable<HeaderType['navItems']>[number]
 
 export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
   const navItems = data?.navItems || []
@@ -27,9 +29,9 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
   )
 }
 
-const NavDropdown: React.FC<{ item: any }> = ({ item }) => {
+const NavDropdown: React.FC<{ item: NavItem }> = ({ item }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [clients, setClients] = useState<Client[]>([])
+  const [clients, setClients] = useState<Brand[]>([])
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -45,10 +47,10 @@ const NavDropdown: React.FC<{ item: any }> = ({ item }) => {
 
   useEffect(() => {
     if (item.dropdownType === 'clients' && isOpen && clients.length === 0) {
-      fetch('/api/clients?limit=100')
+      fetch('/api/brands?limit=100')
         .then(res => res.json())
         .then(data => setClients(data.docs || []))
-        .catch(err => console.error('Failed to fetch clients:', err))
+        .catch(err => console.error('Failed to fetch brands:', err))
     }
   }, [isOpen, item.dropdownType, clients.length])
 
@@ -61,7 +63,7 @@ const NavDropdown: React.FC<{ item: any }> = ({ item }) => {
           newTab: true,
         }
       })
-    : item.dropdownLinks?.map((linkItem: any) => ({
+    : item.dropdownLinks?.map((linkItem) => ({
         ...linkItem.link,
       })) || []
 
@@ -84,7 +86,7 @@ const NavDropdown: React.FC<{ item: any }> = ({ item }) => {
             {links.length === 0 && item.dropdownType !== 'clients' && (
               <li className="px-4 py-2 text-sm text-gray-500">No links available</li>
             )}
-            {links.map((link: any, idx: number) => (
+            {links.map((link, idx) => (
               <li key={idx}>
                 {link.url ? (
                   <a
@@ -97,11 +99,12 @@ const NavDropdown: React.FC<{ item: any }> = ({ item }) => {
                     {link.label}
                   </a>
                 ) : (
-                  <CMSLink
-                    {...link}
-                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsOpen(false)}
-                  />
+                  <span onClick={() => setIsOpen(false)}>
+                    <CMSLink
+                      {...link}
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    />
+                  </span>
                 )}
               </li>
             ))}

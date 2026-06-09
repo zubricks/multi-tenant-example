@@ -1,4 +1,4 @@
-import type { Config } from 'src/payload-types'
+import type { DataFromCollectionSlug } from 'payload'
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -6,7 +6,10 @@ import { unstable_cache } from 'next/cache'
 
 type TenantGlobal = 'header' | 'footer'
 
-async function getTenantGlobal(slug: TenantGlobal, depth = 0) {
+async function getTenantGlobal<T extends TenantGlobal>(
+  slug: T,
+  depth = 0,
+): Promise<DataFromCollectionSlug<T> | null> {
   const payload = await getPayload({ config: configPromise })
 
   // For tenant-specific globals (which are actually collections with isGlobal: true),
@@ -23,7 +26,7 @@ async function getTenantGlobal(slug: TenantGlobal, depth = 0) {
 /**
  * Returns a unstable_cache function mapped with the cache tag for the slug
  */
-export const getCachedGlobal = (slug: TenantGlobal, depth = 0) =>
+export const getCachedGlobal = <T extends TenantGlobal>(slug: T, depth = 0) =>
   unstable_cache(async () => getTenantGlobal(slug, depth), [slug], {
     tags: [`global_${slug}`],
   })

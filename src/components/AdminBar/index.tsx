@@ -43,7 +43,7 @@ export const AdminBar: React.FC<{
     collectionLabels[segments?.[1] as keyof typeof collectionLabels] ? segments[1] : 'pages'
   ) as keyof typeof collectionLabels
   const router = useRouter()
-  const tenant = useTenant()
+  const { tenant } = useTenant()
 
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
     setShow(Boolean(user?.id))

@@ -1,17 +1,16 @@
 'use client'
 
 import React from 'react'
-import type { Client } from '@/payload-types'
+import type { Brand } from '@/payload-types'
 
 interface TenantCellProps {
-  cellData?: string | Client | null
-  rowData?: any
-  [key: string]: any
+  cellData?: string | Brand | null
+  [key: string]: unknown
 }
 
 export const TenantCell: React.FC<TenantCellProps> = (props) => {
-  const { cellData, rowData } = props
-  const [tenantData, setTenantData] = React.useState<Client | null>(null)
+  const { cellData } = props
+  const [tenantData, setTenantData] = React.useState<Brand | null>(null)
   const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
@@ -26,7 +25,7 @@ export const TenantCell: React.FC<TenantCellProps> = (props) => {
       // If cellData is just an ID, fetch the full tenant data
       if (typeof cellData === 'string') {
         try {
-          const response = await fetch(`/api/clients/${cellData}`, {
+          const response = await fetch(`/api/brands/${cellData}`, {
             credentials: 'include',
           })
           if (response.ok) {
